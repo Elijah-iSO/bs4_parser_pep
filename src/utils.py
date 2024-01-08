@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from requests import RequestException
 
 from constants import EXPECTED_STATUS
-from exceptions import NotMatchStatuses, ParserFindTagException
+from exceptions import ParserFindTagException
 
 
 def get_response(session, url):
