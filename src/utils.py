@@ -59,15 +59,11 @@ def get_full_status(preview_status):
             return value
 
 
-def results_counter(status_counter):
+def get_results(status_counter):
     results = [('Cтатус', 'Количество')]
-    status_set = set(status_counter)
-    for status in status_set:
-        results.append(
-            (f'{status}', status_counter.count(status))
-        )
+    status_counter['Total'] = sum(status_counter.values())
 
-    results.append(
-        ('Total', f'{len(status_counter)}')
-    )
+    for status, amount in status_counter.items():
+        results.append((status, amount))
+
     return results

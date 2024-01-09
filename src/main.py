@@ -8,10 +8,10 @@ from bs4 import BeautifulSoup
 from tqdm import tqdm
 
 from configs import configure_argument_parser, configure_logging
-from constants import BASE_DIR, MAIN_DOC_URL, PEP_URL
+from constants import BASE_DIR, EXPECTED_STATUS, MAIN_DOC_URL, PEP_URL
 from outputs import control_output
-from utils import (compare_statuses, find_tag, get_full_status, get_response,
-                   get_status, results_counter)
+from utils import (compare_statuses, find_tag, get_response, get_results,
+                   get_status)
 
 
 def whats_new(session):
@@ -112,37 +112,29 @@ def pep(session):
         return
     soup = BeautifulSoup(response.text, 'lxml')
 
-    status_counter = []
-
     section_tag = find_tag(
         soup, 'section', {'id': 'numerical-index'}
     )
     tbody_tag = find_tag(section_tag, 'tbody')
     row_tags = tbody_tag.find_all('tr')
 
+    status_counter = dict()
+
     for row in tqdm(row_tags):
         first_column_tag = find_tag(row, 'abbr')
         preview_status = first_column_tag.text[1:]
-        preview_status = get_full_status(preview_status)
+        preview_status_full = EXPECTED_STATUS.get(preview_status)
 
         second_column_tag = find_tag(row, 'a')
         href = second_column_tag['href']
         pep_link = urljoin(PEP_URL, href)
-
         inner_status = get_status(session, pep_link)
-        status_counter.append(inner_status)
-        compare_statuses(preview_status, inner_status, pep_link)
 
-    results_data = results_counter(status_counter)
+        compare_statuses(preview_status_full, inner_status, pep_link)
 
-    results_dir = BASE_DIR / 'results'
-    results_dir.mkdir(exist_ok=True)
-    archive_path = results_dir / 'results.csv'
+        status_counter[inner_status] = status_counter.get(inner_status, 0) + 1
 
-    with open(archive_path, 'w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerows(results_data)
-    logging.info(f'Данные были загружены и сохранёны: {archive_path}')
+    return get_results(status_counter)
 
 
 MODE_TO_FUNCTION = {
