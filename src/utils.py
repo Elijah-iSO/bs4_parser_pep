@@ -53,12 +53,6 @@ def compare_statuses(preview_status, inner_status, pep_link):
         logging.info(error_msg)
 
 
-def get_full_status(preview_status):
-    for key, value in EXPECTED_STATUS.items():
-        if preview_status == key:
-            return value
-
-
 def get_results(status_counter):
     results = [('Cтатус', 'Количество')]
     status_counter['Total'] = sum(status_counter.values())
