@@ -3,7 +3,6 @@ import logging
 from bs4 import BeautifulSoup
 from requests import RequestException
 
-from constants import EXPECTED_STATUS
 from exceptions import ParserFindTagException
 
 
